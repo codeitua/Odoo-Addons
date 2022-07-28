@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+contract_handover_rule_user,contract.handover.rule.user,model_contract_handover_rule,base.group_user,1,0,0,0
+contract_handover_rule_manager,contract.handover.rule.manager,model_contract_handover_rule,hr_contract.group_hr_contract_manager,1,1,1,1
+access_hr_contract_user,hr.contract.user,hr_contract.model_hr_contract,base.group_user,1,1,0,0
