@@ -21,11 +21,11 @@ class ContractHandoverRule(models.Model):
         for obj in self:
             department_ids_list = (obj.department_id + obj.department_id.child_ids).ids
             if not obj.share_to_manager and obj.department_id.manager_id:
-                contract_ids = self.env['hr.contract'].search([
+                contract_ids = self.env['hr.contract'].sudo().search([
                     ('department_id','in',department_ids_list),
                     ('employee_id','!=',obj.department_id.manager_id.id)])
             else:
-                contract_ids = self.env['hr.contract'].search([
+                contract_ids = self.env['hr.contract'].sudo().search([
                     ('department_id','in',department_ids_list)])
             result+=contract_ids.ids
         return result

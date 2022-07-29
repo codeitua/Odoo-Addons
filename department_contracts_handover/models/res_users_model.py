@@ -10,5 +10,5 @@ class ResUsers(models.Model):
         """This method called by rules"""
         for obj in self:
             if self.env.user.has_group('hr_contract.group_hr_contract_manager'):
-                return self.env['hr.contract'].search([]).ids
+                return self.env['hr.contract'].sudo().search([]).ids
             return obj.contract_rule_ids.get_contracts()
