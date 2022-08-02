@@ -1,17 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-
          <record id="contract_handover_rule_form" model="ir.ui.view">
             <field name="name">contract.handover.rule.form</field>
             <field name="model">contract.handover.rule</field>
             <field name="arch" type="xml">
-                <form string="Department Contract Handover">
+                <form string="Department Contracts Handover">
                     <sheet>
                         <group>
                             <field name="access_provider_id" readonly='1'/>
                             <field name="department_id" required='1'/>
                             <field name="access_receiver_id" required='1' domain="[('employee_ids','!=',False)]"/>
-                            <field name="expiration_date" required='1'/>
+                            <field name="expiration_date" widget='date' required='1'/>
                             <field name="share_to_manager" required='1'/>
                         </group>
                     </sheet>
@@ -23,7 +22,7 @@
             <field name="name">contract.handover.rule.tree</field>
             <field name="model">contract.handover.rule</field>
             <field name="arch" type="xml">
-                <tree string="Department Contract Handover">
+                <tree string="Department Contracts Handover">
                     <field name="access_provider_id" readonly='1'/>
                     <field name="department_id" readonly='1'/>
                     <field name="access_receiver_id" readonly='1'/>
@@ -33,7 +32,7 @@
         </record>
 
         <record id="action_contract_handover_rule" model="ir.actions.act_window">
-            <field name="name">Department Contract Handover</field>
+            <field name="name">Department Contracts Handover</field>
             <field name="res_model">contract.handover.rule</field>
             <field name="view_mode">tree,form</field>
         </record>
@@ -41,11 +40,10 @@
 
         <menuitem
             id="hr_menu_contract_handover"
-            name="Department Contract Handover"
+            name="Department Contracts Handover"
             action="action_contract_handover_rule"
             parent="hr.menu_human_resources_configuration"
             groups='hr_contract.group_hr_contract_manager'
             sequence="10"
             />
-
 </odoo>

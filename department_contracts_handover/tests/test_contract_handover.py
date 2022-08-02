@@ -3,8 +3,6 @@ from odoo.exceptions import ValidationError
 import datetime
 from odoo.addons.mail.tests.common import mail_new_test_user
 
-
-
 class TestContractHandover(TransactionCase):
 
     def get_available_contracts(self,user_val):

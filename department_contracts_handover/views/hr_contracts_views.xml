@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-
          <record id="hr_employee_view_form_department_handover" model="ir.ui.view">
             <field name="name">hr.hr.employee.view.form.department.handover</field>
             <field name="model">hr.employee</field>
@@ -17,7 +16,6 @@
             </field>
         </record>
         
-
         <!-- Overrided groups for contracts menuitem -->
         <menuitem
             id="hr_contract.hr_menu_contract"
