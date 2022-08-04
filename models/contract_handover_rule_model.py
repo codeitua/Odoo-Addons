@@ -37,18 +37,19 @@ class ContractHandoverRule(models.Model):
         """returns list of ids"""
         result = []
         for obj in self:
-            department_ids_list = (obj.department_id + obj.department_id.child_ids).ids
-            if not obj.share_to_manager and obj.department_id.manager_id:
-                contract_ids = self.env['hr.contract'].sudo().search([
-                    ('department_id','in',department_ids_list),
-                    ('employee_id','!=',obj.department_id.manager_id.id)])
-                if contract_ids:
-                    result+=contract_ids.ids
-            else:
-                contract_ids = self.env['hr.contract'].sudo().search(['|',
-                    ('department_id','in',department_ids_list),('employee_id','=',obj.department_id.manager_id.id)])
-                if contract_ids:
-                    result+=contract_ids.ids
+            if obj.expiration_date >= date.today():
+                department_ids_list = (obj.department_id + obj.department_id.child_ids).ids
+                if not obj.share_to_manager and obj.department_id.manager_id:
+                    contract_ids = self.env['hr.contract'].sudo().search([
+                        ('department_id','in',department_ids_list),
+                        ('employee_id','!=',obj.department_id.manager_id.id)])
+                    if contract_ids:
+                        result+=contract_ids.ids
+                else:
+                    contract_ids = self.env['hr.contract'].sudo().search(['|',
+                        ('department_id','in',department_ids_list),('employee_id','=',obj.department_id.manager_id.id)])
+                    if contract_ids:
+                        result+=contract_ids.ids
         return result
 
     @api.depends('department_id', 'access_receiver_id','expiration_date')
