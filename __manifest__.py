@@ -2,6 +2,7 @@
 {
     'name': u'CodeIT Department Contracts Handover',
     'summary': "Department Contracts Handover",
+    'version': '1.0.0',
     'category': 'Human Resources/Contracts',
     'help':"""The Contract Administrator can easily share the access to the Employees’ Contracts of the Company Department(s) to any user.
 
