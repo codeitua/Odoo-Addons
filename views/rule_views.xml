@@ -24,7 +24,7 @@
             <field name="model">contract.handover.rule</field>
             <field name="arch" type="xml">
                 <tree string="Department Contracts Handover">
-                    <field name="access_provider_id" readonly='1'/>
+                    <field name="access_provider_id" string="Shared by" readonly='1'/>
                     <field name="department_id" readonly='1'/>
                     <field name="access_receiver_id" readonly='1'/>
                     <field name="expiration_date" readonly='1'/>
