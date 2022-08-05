@@ -7,10 +7,11 @@
                 <form string="Department Contracts Handover">
                     <sheet>
                         <group>
-                            <field name="access_provider_id" readonly='1'/>
+                            <field name="access_provider_id" string="Shared by" readonly='1'/>
                             <field name="department_id" required='1'/>
                             <field name="access_receiver_id" required='1' domain="[('employee_ids','!=',False)]"/>
-                            <field name="expiration_date" widget='date' required='1'/>
+                            <field name="expiration_date" widget='date'/>
+                            <field name="date_message" string='' class="oe_edit_only" readonly='1'/>
                             <field name="share_to_manager" required='1'/>
                         </group>
                     </sheet>

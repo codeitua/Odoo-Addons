@@ -28,7 +28,6 @@ class TestContractHandover(TransactionCase):
             'date_end': end,
         })
 
-
     def setUp(self, *args, **kwargs):
         super(TestContractHandover, self).setUp(*args, **kwargs)
 
@@ -114,24 +113,21 @@ class TestContractHandover(TransactionCase):
     def test_check_rule_visibility(self):
         # Check manager can see all contracts
         m_c1 = self.get_available_contracts(self.handover_manager1)
-        print(m_c1)
         self.assertGreater(len(m_c1), 0, 'contract count needs to be greater 0')
 
         # Check not shared users can't see any contracts
         u_c1 = self.get_available_contracts(self.handover_receiver1)
         self.assertEqual(len(u_c1), 0, 'contract count needs to be 0')
-        print(u_c1)
 
         u_c2 = self.get_available_contracts(self.handover_receiver2)
         self.assertEqual(len(u_c2), 0, 'contract count needs to be 0')
-        print(u_c2)
 
         # create rule for receiver and check available contracts amount
         self.contr_handover_rule1 = self.env['contract.handover.rule'].sudo().create({
             'department_id': self.department1.id,
             'access_provider_id': self.handover_manager1.id,
             'access_receiver_id': self.handover_receiver1.id,
-            'expiration_date': datetime.date.today() + datetime.timedelta(days=4),
+            'expiration_date': None,
             'share_to_manager': False,
         })
         av_contracts = self.get_available_contracts(self.handover_receiver1)
@@ -167,14 +163,11 @@ class TestContractHandover(TransactionCase):
         self.assertGreater(rule_qty,len(self.env['contract.handover.rule'].search([])),'Qty of rules needs to be changed')
         
         m_c1 = self.get_available_contracts(self.handover_manager1)
-        print(m_c1)
         self.assertGreater(len(m_c1), 0, 'contract count needs to be greater 0')
 
         # Check not shared users can't see any contracts
         u_c1 = self.get_available_contracts(self.handover_receiver1)
         self.assertEqual(len(u_c1), 0, 'contract count needs to be 0')
-        print(u_c1)
 
         u_c2 = self.get_available_contracts(self.handover_receiver2)
         self.assertEqual(len(u_c2), 0, 'contract count needs to be 0')
-        print(u_c2)

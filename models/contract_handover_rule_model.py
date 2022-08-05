@@ -13,8 +13,9 @@ class ContractHandoverRule(models.Model):
     department_id = fields.Many2one('hr.department', string='Department', required=True, ondelete='cascade')
     access_provider_id = fields.Many2one('res.users', string='Access provider', required=True, default=lambda self: self.env.user)
     access_receiver_id = fields.Many2one('res.users', string='Access receiver', required=True, ondelete='cascade')
-    expiration_date = fields.Date(string='Expiration date', required=True)
-    share_to_manager = fields.Boolean(string='I want to share the Contract of the Department Manager', default=False)
+    expiration_date = fields.Date(string='Expiration date')
+    date_message = fields.Text(string='Date warning', default='If the expiration date is not set, infinite access will be provided.')
+    share_to_manager = fields.Boolean(string="Share the Department Manager's Contract", default=False)
 
     @api.model
     def create(self,vals):
@@ -37,7 +38,7 @@ class ContractHandoverRule(models.Model):
         """returns list of ids"""
         result = []
         for obj in self:
-            if obj.expiration_date >= date.today():
+            if not obj.expiration_date or obj.expiration_date >= date.today():
                 department_ids_list = (obj.department_id + obj.department_id.child_ids).ids
                 if not obj.share_to_manager and obj.department_id.manager_id:
                     contract_ids = self.env['hr.contract'].sudo().search([
@@ -62,12 +63,14 @@ class ContractHandoverRule(models.Model):
 
     def delete_expired_rules(self):
         """CRON method which deletes all expired rules"""
-        rules_ids = self.env['contract.handover.rule'].sudo().search([('expiration_date','<',date.today())])
+        # rules_ids = self.env['contract.handover.rule'].sudo().search([('expiration_date','<',date.today())])
+        rules_ids = self.env['contract.handover.rule'].sudo().search([])
+        rules_ids = rulse_ids.filtered(lambda rule: rule.expiration_date and rule.expiration_date < date.today())
         if rules_ids:
             rules_ids.unlink()
 
     @api.constrains('expiration_date')
     def _validate_expiration_date(self):
         for record in self:
-            if record.expiration_date < date.today():
+            if record.expiration_date and record.expiration_date < date.today():
                 raise ValidationError("Please select a later date.")

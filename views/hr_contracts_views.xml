@@ -4,7 +4,6 @@
             <field name="name">hr.hr.employee.view.form.department.handover</field>
             <field name="model">hr.employee</field>
             <field name="inherit_id" ref="hr_contract.hr_hr_employee_view_form2"/>
-            
             <field name="arch" type="xml">
                 <xpath expr="//button[@groups='hr_contract.group_hr_contract_manager']" position='before'>
                     <field name="av_contracts_count" invisible='1'/>
