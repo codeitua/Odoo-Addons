@@ -65,9 +65,9 @@ class ContractHandoverRule(models.Model):
         """CRON method which deletes all expired rules"""
         # rules_ids = self.env['contract.handover.rule'].sudo().search([('expiration_date','<',date.today())])
         rules_ids = self.env['contract.handover.rule'].sudo().search([])
-        rules_ids = rules_ids.filtered(lambda rule: rule.expiration_date and rule.expiration_date < date.today())
-        if rules_ids:
-            rules_ids.unlink()
+        rules_to_delete = rules_ids.filtered(lambda rule: rule.expiration_date and rule.expiration_date < date.today())
+        if rules_to_delete:
+            rules_to_delete.unlink()
 
     @api.constrains('expiration_date')
     def _validate_expiration_date(self):
