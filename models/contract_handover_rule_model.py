@@ -15,7 +15,7 @@ class ContractHandoverRule(models.Model):
     access_receiver_id = fields.Many2one('res.users', string='Access receiver', required=True, ondelete='cascade')
     expiration_date = fields.Date(string='Expiration date')
     date_message = fields.Text(string='Date warning', default='If the expiration date is not set, infinite access will be provided.')
-    share_to_manager = fields.Boolean(string="Share the Department Manager's Contract", default=False)
+    share_to_manager = fields.Boolean(string="Share Department Manager's Contract", default=False)
 
     @api.model
     def create(self,vals):
