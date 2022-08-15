@@ -12,7 +12,7 @@ class ContractHandoverRule(models.Model):
 
     department_id = fields.Many2one('hr.department', string='Department', required=True, ondelete='cascade')
     access_provider_id = fields.Many2one('res.users', string='Access provider', required=True, default=lambda self: self.env.user)
-    access_receiver_id = fields.Many2one('res.users', string='Access receiver', required=True, ondelete='cascade',domain=lambda self: [('employee_ids','!=',False),("groups_id", "=", self.env.ref( "department_contracts_access.group_hr_contract_department_manager").id)])
+    access_receiver_id = fields.Many2one('res.users', string='Access receiver', required=True, ondelete='cascade',domain=lambda self: [('employee_ids','!=',False),("groups_id", "=", self.env.ref( "department_contracts_access.group_hr_contract_department_manager").id),("groups_id", "!=", self.env.ref( "hr_contract.group_hr_contract_manager").id)])
     expiration_date = fields.Date(string='Expiration date')
     date_message = fields.Text(string='Date warning', default='If the expiration date is not set, infinite access will be provided.')
     share_to_manager = fields.Boolean(string="Share Department Manager's Contract", default=False)
