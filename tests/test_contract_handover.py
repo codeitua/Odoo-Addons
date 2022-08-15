@@ -8,6 +8,11 @@ class TestContractHandover(TransactionCase):
     def get_available_contracts(self,user_val):
         return user_val.with_user(user_val.id).get_contract_ids()
 
+    def get_available_employees(self,user_val):
+        return user_val.with_user(user_val.id).get_employee_ids()
+
+    
+
     def new_contract_handover_rule(self,department,provider,receiver,date_end,share_manager=False):
         return self.env['contract.handover.rule'].sudo().create({
             'department_id': department,
@@ -33,8 +38,8 @@ class TestContractHandover(TransactionCase):
 
         self.handover_manager1 = mail_new_test_user(self.env, login='hm1', groups='hr_contract.group_hr_contract_manager', name='Handover manager1', email='hm1@example.com')
         self.handover_manager2 = mail_new_test_user(self.env, login='hm2', groups='hr_contract.group_hr_contract_manager', name='Handover manager2', email='hm2@example.com')
-        self.handover_receiver1 = mail_new_test_user(self.env, login='hr1', groups='base.group_user', name='Handover receiver1', email='hr2@example.com')
-        self.handover_receiver2 = mail_new_test_user(self.env, login='hr2', groups='base.group_user', name='Handover receiver2', email='hr3@example.com')
+        self.handover_receiver1 = mail_new_test_user(self.env, login='hr1', groups='department_contracts_access.group_hr_contract_department_manager', name='Handover receiver1', email='hr2@example.com')
+        self.handover_receiver2 = mail_new_test_user(self.env, login='hr2', groups='department_contracts_access.group_hr_contract_department_manager', name='Handover receiver2', email='hr3@example.com')
         
         self.hand_user1 = mail_new_test_user(self.env, login='he1', groups='base.group_user,hr.group_hr_user', name='Handover user1', email='he1@example.com')
         self.hand_user2 = mail_new_test_user(self.env, login='he2', groups='base.group_user,hr.group_hr_user', name='Handover user2', email='he2@example.com')
@@ -53,6 +58,7 @@ class TestContractHandover(TransactionCase):
 
         self.department3 = self.env['hr.department'].create({
             'name': 'Test Department2',
+            'parent_id': self.department1.id
         })
 
         self.empl1 = self.env['hr.employee'].create({'user_id': self.hand_user1.id,
@@ -131,6 +137,13 @@ class TestContractHandover(TransactionCase):
             'share_to_manager': False,
         })
         av_contracts = self.get_available_contracts(self.handover_receiver1)
+        av_employees = self.get_available_employees(self.handover_receiver1)
+        
+        #check that user have access to employee from subdepartments
+        self.assertIn(self.empl5.id,av_employees,'Employee 5 need to be in a result')
+
+        #check that user have access to contracts from subdepartments
+        self.assertIn(self.contract5.id,av_contracts,'Contract 5 need to be in a result')
 
         # Check that after sharing receiver1 can see contracts
         self.assertGreater(len(av_contracts), 0, 'contract count needs to be greater than 0')

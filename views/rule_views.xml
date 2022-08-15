@@ -9,7 +9,7 @@
                         <group>
                             <field name="access_provider_id" style='margin-bottom:10px;' string="Shared by" readonly='1'/>
                             <field name="department_id" style='margin-bottom:10px;' required='1'/>
-                            <field name="access_receiver_id" style='margin-bottom:10px;' required='1' domain="[('employee_ids','!=',False)]"/>
+                            <field name="access_receiver_id" style='margin-bottom:10px;'/>
                             <field name="expiration_date" widget='date'/>
                             <field name="date_message" string='' class="oe_edit_only" style="color:#adb5bd; margin-bottom:10px;" readonly='1'/>
                             <field name="share_to_manager" required='1'/>
@@ -38,7 +38,6 @@
             <field name="view_mode">tree,form</field>
         </record>
 
-
         <menuitem
             id="hr_menu_contract_handover"
             name="Department Contracts Handover"
@@ -47,4 +46,8 @@
             groups='hr_contract.group_hr_contract_manager'
             sequence="10"
             />
+
+        <record model='ir.ui.menu' id='hr.menu_hr_employee_payroll'> 
+            <field name="groups_id" eval="[(4,ref('department_contracts_access.group_hr_contract_department_manager'))]"/> 
+        </record>
 </odoo>

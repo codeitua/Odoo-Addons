@@ -12,6 +12,7 @@
                     <attribute name="attrs">{'invisible': [('av_contracts_count','=',0)]}</attribute>
                     <attribute name="groups"></attribute>
                 </xpath>
+     
             </field>
         </record>
         

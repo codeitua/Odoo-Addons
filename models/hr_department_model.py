@@ -19,3 +19,11 @@ class Department(models.Model):
         res = super(Department,self).unlink()
         self.env['ir.rule'].clear_caches()
         return res
+
+    def get_departments_childs(self):
+        result = self.env['hr.department']
+        for obj in self:
+            result += obj
+            if obj.child_ids:
+                result += obj.child_ids.get_departments_childs()
+        return result

@@ -12,7 +12,7 @@ class ContractHandoverRule(models.Model):
 
     department_id = fields.Many2one('hr.department', string='Department', required=True, ondelete='cascade')
     access_provider_id = fields.Many2one('res.users', string='Access provider', required=True, default=lambda self: self.env.user)
-    access_receiver_id = fields.Many2one('res.users', string='Access receiver', required=True, ondelete='cascade')
+    access_receiver_id = fields.Many2one('res.users', string='Access receiver', required=True, ondelete='cascade',domain=lambda self: [('employee_ids','!=',False),("groups_id", "=", self.env.ref( "department_contracts_access.group_hr_contract_department_manager").id)])
     expiration_date = fields.Date(string='Expiration date')
     date_message = fields.Text(string='Date warning', default='If the expiration date is not set, infinite access will be provided.')
     share_to_manager = fields.Boolean(string="Share Department Manager's Contract", default=False)
@@ -33,24 +33,25 @@ class ContractHandoverRule(models.Model):
         self.env['ir.rule'].clear_caches()
         return res
 
-
     def get_contracts(self):
         """returns list of ids"""
         result = []
+        empl_ids = self.get_employees()
+        contracts_ids = self.env['hr.contract'].sudo().search([('employee_id','in',empl_ids)])
+        if contracts_ids:
+            result += contracts_ids.ids
+        return result
+
+    def get_employees(self):
+        result = []
         for obj in self:
             if not obj.expiration_date or obj.expiration_date >= date.today():
-                department_ids_list = (obj.department_id + obj.department_id.child_ids).ids
+                department_ids = obj.department_id.get_departments_childs()
+                employee_ids = department_ids.mapped('member_ids')
                 if not obj.share_to_manager and obj.department_id.manager_id:
-                    contract_ids = self.env['hr.contract'].sudo().search([
-                        ('department_id','in',department_ids_list),
-                        ('employee_id','!=',obj.department_id.manager_id.id)])
-                    if contract_ids:
-                        result+=contract_ids.ids
-                else:
-                    contract_ids = self.env['hr.contract'].sudo().search(['|',
-                        ('department_id','in',department_ids_list),('employee_id','=',obj.department_id.manager_id.id)])
-                    if contract_ids:
-                        result+=contract_ids.ids
+                    employee_ids = employee_ids.filtered(lambda empl: empl.id != obj.department_id.manager_id.id)
+                if employee_ids:
+                    result += employee_ids.ids
         return result
 
     @api.depends('department_id', 'access_receiver_id','expiration_date')
@@ -63,7 +64,6 @@ class ContractHandoverRule(models.Model):
 
     def delete_expired_rules(self):
         """CRON method which deletes all expired rules"""
-        # rules_ids = self.env['contract.handover.rule'].sudo().search([('expiration_date','<',date.today())])
         rules_ids = self.env['contract.handover.rule'].sudo().search([])
         rules_to_delete = rules_ids.filtered(lambda rule: rule.expiration_date and rule.expiration_date < date.today())
         if rules_to_delete:
