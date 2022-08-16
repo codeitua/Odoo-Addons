@@ -13,8 +13,8 @@ class ResUsers(models.Model):
                 return False
             department_ids = self.env['hr.department'].search([('manager_id','=',obj.employee_id.id)])
             if department_ids:
-                for dep in department_ids:
-                    res += dep.get_departments_childs().mapped('member_ids').ids
+                employees = department_ids.get_departments_childs().mapped('member_ids')
+                res = employees.filtered(lambda empl: empl.id != obj.employee_id.id).ids
             return res
 
     def get_manager_contract(self):

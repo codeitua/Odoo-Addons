@@ -43,16 +43,21 @@ class ContractHandoverRule(models.Model):
         return result
 
     def get_employees(self):
-        result = []
+        result = self.env['hr.employee']
         for obj in self:
             if not obj.expiration_date or obj.expiration_date >= date.today():
                 department_ids = obj.department_id.get_departments_childs()
                 employee_ids = department_ids.mapped('member_ids')
+                manager = obj.department_id.manager_id
+                if obj.department_id.manager_id and manager not in employee_ids:
+                    employee_ids += obj.department_id.manager_id
                 if not obj.share_to_manager and obj.department_id.manager_id:
                     employee_ids = employee_ids.filtered(lambda empl: empl.id != obj.department_id.manager_id.id)
                 if employee_ids:
-                    result += employee_ids.ids
-        return result
+                    result += employee_ids
+        if result:
+            result = result.filtered(lambda empl: empl.id != self.env.user.employee_id.id)
+        return result.ids
 
     @api.depends('department_id', 'access_receiver_id','expiration_date')
     def name_get(self):
