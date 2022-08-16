@@ -3,3 +3,4 @@ contract_handover_rule_manager,contract.handover.rule.manager,model_contract_han
 contract_handover_rule_dep_manager,contract.handover.rule.dep.manager,model_contract_handover_rule,department_contracts_access.group_hr_contract_department_manager,1,0,0,0
 hr_employee_rule_dep_manager,hr.empl.rule.dep.manager,hr.model_hr_employee,department_contracts_access.group_hr_contract_department_manager,1,0,0,0
 hr_contract_rule_dep_manager,hr.contract.rule.dep.manager,hr_contract.model_hr_contract,department_contracts_access.group_hr_contract_department_manager,1,0,0,0
+access_hr_contract_user,hr.contract.user,hr_contract.model_hr_contract,base.group_user,1,0,0,0
