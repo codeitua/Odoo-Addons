@@ -81,7 +81,6 @@ class TestContractHandover(TransactionCase):
         self.contract1._compute_employee_contract()
         self.contract2 = self.new_contract('draft',self.empl2.id, 'normal', self.contract_start, self.contract_end)
         self.contract2._compute_employee_contract()
-
         self.contract3 = self.new_contract('draft',self.empl3.id, 'normal', self.contract_start, self.contract_end)
         self.contract3._compute_employee_contract()
         self.contract4 = self.new_contract('draft',self.empl4.id, 'normal', self.contract_start, self.contract_end)

@@ -6,7 +6,7 @@
         </record> 
 
         <record id="contract_access_rule" model="ir.rule">
-            <field name="name">Department access rule</field>
+            <field name="name">Department access rule (CodeIT)</field>
             <field name="model_id" ref="hr_contract.model_hr_contract"/>
             <field name="domain_force">[('id', 'in', user.get_contract_ids())]</field>
             <field name="groups" eval="[(4,ref('base.group_user'))]"/>
@@ -19,7 +19,7 @@
         </record>
 
         <record id="contract_manager_employee_access_rule" model="ir.rule">
-            <field name="name">Employee access rule</field>
+            <field name="name">Employee access rule (CodeIT)</field>
             <field name="model_id" ref="hr.model_hr_employee"/>
             <field name="domain_force">[('id', 'in', user.get_employee_ids())]</field>
             <field name="groups" eval="[(4,ref('department_contracts_access.group_hr_contract_department_manager'))]"/>

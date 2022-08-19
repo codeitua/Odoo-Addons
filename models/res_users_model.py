@@ -41,9 +41,8 @@ class ResUsers(models.Model):
     def get_employee_ids(self):
         """This method called by rules"""
         for obj in self:
-            if self.env.user.has_group('hr_contract.group_hr_contract_manager') or not self.env.user.has_group('department_contracts_access.group_hr_contract_department_manager'):
+            if self.env.user.has_group('hr.group_hr_user'):
                 return self.env['hr.employee'].sudo().search(['|',('active','=',True),('active','=',False)]).ids
-
             result = obj.sudo().contract_rule_ids.get_employees()
             if obj.employee_ids:
                 result += obj.get_manager_empl()
