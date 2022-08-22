@@ -1,3 +1,4 @@
+from re import A
 from odoo.tests.common import TransactionCase
 from odoo.exceptions import ValidationError
 import datetime
@@ -38,7 +39,9 @@ class TestContractHandover(TransactionCase):
 
         self.handover_manager1 = mail_new_test_user(self.env, login='hm1', groups='hr_contract.group_hr_contract_manager', name='Handover manager1', email='hm1@example.com')
         self.handover_manager2 = mail_new_test_user(self.env, login='hm2', groups='hr_contract.group_hr_contract_manager', name='Handover manager2', email='hm2@example.com')
-        self.handover_receiver1 = mail_new_test_user(self.env, login='hr1', groups='department_contracts_access.group_hr_contract_department_manager', name='Handover receiver1', email='hr2@example.com')
+        self.handover_receiver1 = mail_new_test_user(self.env, login='hr1', groups='base.group_user,department_contracts_access.group_hr_contract_department_manager', name='Handover receiver1', email='hr2@example.com')
+        self.handover_receiver1.action_create_employee()
+
         self.handover_receiver2 = mail_new_test_user(self.env, login='hr2', groups='department_contracts_access.group_hr_contract_department_manager', name='Handover receiver2', email='hr3@example.com')
         
         self.hand_user1 = mail_new_test_user(self.env, login='he1', groups='base.group_user,hr.group_hr_user', name='Handover user1', email='he1@example.com')
@@ -57,8 +60,12 @@ class TestContractHandover(TransactionCase):
         })
 
         self.department3 = self.env['hr.department'].create({
-            'name': 'Test Department2',
+            'name': 'Test Department3',
             'parent_id': self.department1.id
+        })
+        self.department4 = self.env['hr.department'].create({
+            'name': 'Test Department4',
+            'parent_id': self.department2.id
         })
 
         self.empl1 = self.env['hr.employee'].create({'user_id': self.hand_user1.id,
@@ -70,7 +77,7 @@ class TestContractHandover(TransactionCase):
         self.empl3 = self.env['hr.employee'].create({'user_id': self.hand_user3.id,
                                                 'department_id':self.department1.id})
         self.empl4 = self.env['hr.employee'].create({'user_id': self.hand_user4.id,
-                                                'department_id':self.department2.id})
+                                                'department_id':self.department4.id})
         self.empl5 = self.env['hr.employee'].create({'user_id': self.hand_user5.id,
                                                 'department_id':self.department3.id})
 
@@ -115,18 +122,101 @@ class TestContractHandover(TransactionCase):
             )
     
 
-    def test_check_rule_visibility(self):
-        # Check manager can see all contracts
+    def test_check_contract_manager_visibility(self):
+        # Check admin can see all contracts
+        all_empl_ids = self.env['hr.employee'].search(['|',('active','=',False),('active','=',True)])
+        all_contracts_ids = self.env['hr.contract'].search(['|',('active','=',False),('active','=',True)])
+        
         m_c1 = self.get_available_contracts(self.handover_manager1)
         self.assertGreater(len(m_c1), 0, 'contract count needs to be greater 0')
+        self.assertEqual(len(m_c1),len(all_contracts_ids),'Available contracts qty needs to be = all contracts')
 
-        # Check not shared users can't see any contracts
-        u_c1 = self.get_available_contracts(self.handover_receiver1)
-        self.assertEqual(len(u_c1), 0, 'contract count needs to be 0')
+        # Check admin can see all employees
+        m_e1 = self.get_available_employees(self.handover_manager1)
+        self.assertGreater(len(m_e1), 0, 'employee count needs to be greater 0')
+        self.assertEqual(len(m_e1),len(all_empl_ids),'Available employee qty needs to be = all employee')
 
-        u_c2 = self.get_available_contracts(self.handover_receiver2)
-        self.assertEqual(len(u_c2), 0, 'contract count needs to be 0')
+        # check admin for create contract
+        self.contract6 = self.env['hr.contract'].with_user(self.handover_manager1.id).create({
+            'name': 'Contract',
+            'employee_id': False,
+            'state': 'draft',
+            'kanban_state': 'normal',
+            'wage': 1,
+            'date_start': self.contract_start,
+            'date_end': self.contract_end,
+        })
+        self.contract6._compute_employee_contract()
 
+        # check admin for update contract
+        self.contract6.with_user(self.handover_manager1.id).write({'name':'contract_test_write'})
+        self.assertEqual(self.contract6.name,'contract_test_write','Name needs to be changed')
+
+        # check admin for delete contract
+        self.contract6.unlink()
+        m_c1 = self.get_available_contracts(self.handover_manager1)
+        self.assertEqual(len(m_c1),len(all_contracts_ids),'Needs to be equal')
+
+        
+
+    def test_check_rule_visibility(self):
+        all_empl_ids = self.env['hr.employee'].search(['|',('active','=',False),('active','=',True)])
+        all_contracts_ids = self.env['hr.contract'].search(['|',('active','=',False),('active','=',True)])
+
+        # Check not shared/dep manager users can't see any contracts
+        hr1_contr = self.get_available_contracts(self.handover_receiver1)
+        self.assertEqual(len(hr1_contr), 0, 'contract count needs to be = 0')
+        # Check not shared/dep manager users can't see any employees
+        hr1_employees = self.get_available_employees(self.handover_receiver1)
+        self.assertEqual(len(hr1_employees), 0, 'empl count needs to be = 0')
+
+
+        # -----
+        self.department2.sudo().write({
+            'manager_id':self.handover_receiver1.employee_id.id
+        })
+        
+        # Check not shared but dep manager users can see departments contracts
+        hr1_contr = self.get_available_contracts(self.handover_receiver1)
+        self.assertGreater(len(hr1_contr), 0, 'contract count needs to be > 0')
+        self.assertLess(len(hr1_contr),len(all_contracts_ids),'Available contracts < all contracts')
+        # Check not shared but dep manager users can see departments employees
+        hr1_employees = self.get_available_employees(self.handover_receiver1)
+        self.assertGreater(len(hr1_employees), 0, 'empl count needs to be > 0')
+        self.assertLess(len(hr1_employees),len(all_empl_ids),'Available employee < all employee')
+
+        # Check dep manager can see employees and contracts from subdepartments
+        self.assertIn(self.empl4.id,hr1_employees,'Employee 4 need to be in a result')
+        self.assertIn(self.contract4.id,hr1_contr,'Contract 4 need to be in a result')
+
+        
+        empl_oficer = self.env.ref('hr.group_hr_user')
+        empl_oficer.write({'users': [(4, self.handover_receiver1.id)]})
+
+        # check that oficer/contract manager can see available contracts
+        hr1_contr = self.get_available_contracts(self.handover_receiver1)
+        self.assertLess(len(hr1_contr),len(all_contracts_ids),'Available contracts < all contracts')
+        # check that oficer/contract manager can see all employee
+        hr1_employees = self.get_available_employees(self.handover_receiver1)
+        self.assertEqual(len(hr1_employees),len(all_empl_ids),'Available employee = all employee')
+
+        
+        contract_admin = self.env.ref('hr_contract.group_hr_contract_manager')
+        contract_admin.write({'users': [(4, self.handover_receiver1.id)]})
+
+        # check that oficer/contract admin can see available contracts
+        hr1_contr = self.get_available_contracts(self.handover_receiver1)
+        self.assertEqual(len(hr1_contr),len(all_contracts_ids),'Available contracts = all contracts')
+        # check that oficer/contract admin can see all employee
+        hr1_employees = self.get_available_employees(self.handover_receiver1)
+        self.assertEqual(len(hr1_employees),len(all_empl_ids),'Available employee = all employee')
+        
+
+        empl_oficer.write({'users': [(3, self.handover_receiver1.id)]})
+        contract_admin.write({'users': [(3, self.handover_receiver1.id)]})
+        
+
+    def test_handover_rule_creation(self):
         # create rule for receiver and check available contracts amount
         self.contr_handover_rule1 = self.env['contract.handover.rule'].sudo().create({
             'department_id': self.department1.id,
@@ -138,38 +228,27 @@ class TestContractHandover(TransactionCase):
         av_contracts = self.get_available_contracts(self.handover_receiver1)
         av_employees = self.get_available_employees(self.handover_receiver1)
         
-        #check that user have access to employee from subdepartments
-        self.assertIn(self.empl5.id,av_employees,'Employee 5 need to be in a result')
-
-        #check that user have access to contracts from subdepartments
-        self.assertIn(self.contract5.id,av_contracts,'Contract 5 need to be in a result')
-
-        # Check that after sharing receiver1 can see contracts
+        # Check that after sharing user can see contracts
         self.assertGreater(len(av_contracts), 0, 'contract count needs to be greater than 0')
+        # check that user have access to employee from subdepartments
+        self.assertIn(self.empl5.id,av_employees,'Employee 5 need to be in a result')
+        # check that user have access to contracts from subdepartments
+        self.assertIn(self.contract5.id,av_contracts,'Contract 5 need to be in a result')
+        
 
-        # Check that receiver1 cant see department managers contracts
-        # Because rule have share_to_manager field = False
+        # Check that user cant see department managers contracts/employees. share_to_manager = False
+        # 
         self.assertNotIn(self.contract1.id,av_contracts,'Contract 1 dont need to be in result')
+        self.assertNotIn(self.empl1.id,av_employees,'Empl 1 dont need to be in result')
+        
+        # Check that user can see department managers contracts/employees. share_to_manager = True
+        self.contr_handover_rule1.share_to_manager = True
+        av_contracts = self.get_available_contracts(self.handover_receiver1)
+        av_employees = self.get_available_employees(self.handover_receiver1)
+        self.assertIn(self.contract1.id,av_contracts,'Contract 1 need to be in result')
+        self.assertIn(self.empl1.id,av_employees,'Empl 1 need to be in result')
 
-        # create rule for receiver and check available contracts amount
-        self.contr_handover_rule2 = self.env['contract.handover.rule'].sudo().create({
-            'department_id': self.department1.id,
-            'access_provider_id': self.handover_manager2.id,
-            'access_receiver_id': self.handover_receiver2.id,
-            'expiration_date': datetime.date.today() + datetime.timedelta(days=4),
-            'share_to_manager': True,
-        })
-        av_contracts2 = self.get_available_contracts(self.handover_receiver2)
-
-        # Check that after sharing receiver1 can see contracts
-        self.assertGreater(len(av_contracts2), 0, 'contract count needs to be greater than 0')
-
-        # Check that receiver1 can see department managers contracts
-        # Because rule have share_to_manager field = True
-        self.assertIn(self.contract1.id,av_contracts2,'Contract 1 need to be in result')
-
-
-        #check rule deletion when department deleted
+        # check rule deletion when department deleted
         rule_qty = len(self.env['contract.handover.rule'].search([]))
         self.department1.unlink()
         self.assertGreater(rule_qty,len(self.env['contract.handover.rule'].search([])),'Qty of rules needs to be changed')
@@ -180,6 +259,4 @@ class TestContractHandover(TransactionCase):
         # Check not shared users can't see any contracts
         u_c1 = self.get_available_contracts(self.handover_receiver1)
         self.assertEqual(len(u_c1), 0, 'contract count needs to be 0')
-
-        u_c2 = self.get_available_contracts(self.handover_receiver2)
-        self.assertEqual(len(u_c2), 0, 'contract count needs to be 0')
+        

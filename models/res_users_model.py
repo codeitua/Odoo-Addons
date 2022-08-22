@@ -32,7 +32,7 @@ class ResUsers(models.Model):
                 return self.env['hr.contract'].sudo().search(['|',('active','=',True),('active','=',False)]).ids
             
             result = obj.sudo().contract_rule_ids.get_contracts()
-            if obj.employee_ids:
+            if obj.employee_ids or obj.employee_id:
                 manager_contracts = obj.get_manager_contract()
                 if manager_contracts:
                     result += manager_contracts
@@ -44,6 +44,6 @@ class ResUsers(models.Model):
             if self.env.user.has_group('hr.group_hr_user'):
                 return self.env['hr.employee'].sudo().search(['|',('active','=',True),('active','=',False)]).ids
             result = obj.sudo().contract_rule_ids.get_employees()
-            if obj.employee_ids:
+            if obj.employee_ids or obj.employee_id:
                 result += obj.get_manager_empl()
             return result
