@@ -21,4 +21,4 @@ Module installation:
 4. Activate the Developer Mode;
 5. Go to Apps and push the “Update Apps List” button;
 6. Find and install the required modules: hr, hr_contract;
-7. Find the “Department Contracts Management” module and push the “Install” button.
+7. Find the “Department Contracts Access and Handover” module and push the “Install” button.
