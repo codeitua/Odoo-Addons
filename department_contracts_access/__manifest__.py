@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 {
-    'name': u'Department Contracts Access and Handover',
-    'summary': "Department Contracts Access and Handover",
-    'author':'CodeIT',
-    'version': '1.0.0',
+    'name': 'Department Contracts Access and Handover',
+    'summary': "Grants Department Manager access to Contracts of Department's Employees. Enables admin to share access to a specific Department Contracts.",
+    'author': 'CodeIT',
+    'company': 'CodeIT',
+    'website': 'https://codeit.us/',
+    'version': '14.0.1.0.0',
+    'license': 'AGPL-3',
     'category': 'Human Resources/Contracts',
-    'help':
+    'description':
         """The module enables the Department Manager to have read-only access to the Contracts of their Department’s Employees by creating a new Contracts group - “Contracts Manager”. The User is assigned to the Contracts Manager group in Settings>Manage Users>Specific User>HR Section>Contracts select.
         The module also enables the Contracts Administrator to share the access to the Employees’ Contracts of any Company Department(s) with any User within the 
 
@@ -29,6 +32,7 @@
         6. Find and install the required modules: hr, hr_contract;
         7. Find the “Department Contracts Access and Handover” module and push the “Install” button.
         """,
+    'images': ['static/description/banner.png'],
     'depends': ['hr_contract'],
     'data': [
         'security/security.xml',
