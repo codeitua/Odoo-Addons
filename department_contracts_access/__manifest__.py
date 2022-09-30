@@ -7,7 +7,7 @@
     'website': 'https://codeit.us/',
     'version': '14.0.1.0.0',
     'license': 'LGPL-3',
-    'category': 'Human Resources',
+    'category': 'Generic Modules/Human Resources',
     'description':
         """The module enables the Department Manager to have read-only access to the Contracts of their Department’s Employees by creating a new Contracts group - “Contracts Manager”. The User is assigned to the Contracts Manager group in Settings>Manage Users>Specific User>HR Section>Contracts select.
         The module also enables the Contracts Administrator to share the access to the Employees’ Contracts of any Company Department(s) with any User within the 
